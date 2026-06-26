@@ -19,6 +19,7 @@ namespace CyberSecurityBot
 
         // Bot logic
         private readonly ResponseEngine _engine = new ResponseEngine();
+        private readonly TaskCommandHandler _taskHandler = new TaskCommandHandler();
         private string? _userName;
         private bool _awaitingName = true;
 
