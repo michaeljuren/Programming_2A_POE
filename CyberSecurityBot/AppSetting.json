@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "TaskManager": "Server=localhost;Port=3306;Database=task-manager;Uid=root;Pwd=St@rl0rd!;"
+  }
+}
