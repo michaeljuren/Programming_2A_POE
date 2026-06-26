@@ -54,7 +54,7 @@ namespace CyberSecurityBot
             conn.Open();
 
             const string sql = @"
-                INSERT INTO tasks (TITLE, DESCRIPTION, REMINDER, CREATED_AT, COMPLETED)
+                INSERT INTO task (TITLE, DESCRIPTION, REMINDER, CREATED_AT, COMPLETED)
                 VALUES (@title, @description, @reminder, @createdAt, @completed);
                 SELECT LAST_INSERT_ID();";
 
@@ -77,7 +77,7 @@ namespace CyberSecurityBot
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
-            const string sql = "UPDATE tasks SET REMINDER = @reminder WHERE ID = @id;";
+            const string sql = "UPDATE task SET REMINDER = @reminder WHERE ID = @id;";
 
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@reminder", reminder);
@@ -97,7 +97,7 @@ namespace CyberSecurityBot
 
             const string sql = @"
                 SELECT ID, TITLE, DESCRIPTION, REMINDER, CREATED_AT, COMPLETED
-                FROM tasks
+                FROM task
                 ORDER BY CREATED_AT DESC;";
 
             using var cmd = new MySqlCommand(sql, conn);
@@ -131,7 +131,7 @@ namespace CyberSecurityBot
 
             const string sql = @"
                 SELECT ID, TITLE, DESCRIPTION, REMINDER, CREATED_AT, COMPLETED
-                FROM tasks
+                FROM task
                 WHERE ID = @id;";
 
             using var cmd = new MySqlCommand(sql, conn);
@@ -161,7 +161,7 @@ namespace CyberSecurityBot
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
-            const string sql = "DELETE FROM tasks WHERE ID = @id;";
+            const string sql = "DELETE FROM task WHERE ID = @id;";
 
             using var cmd = new MySqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@id", id);

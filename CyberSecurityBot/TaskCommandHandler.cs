@@ -19,12 +19,15 @@ namespace CyberSecurityBot
         private readonly TaskRepository _repo = new TaskRepository();
 
         // Conversation state
-        private enum PendingAction { None, AwaitingReminder, AwaitingDeleteConfirmation }
+        private enum PendingAction { None, AwaitingReminder, AwaitingReminderDays, AwaitingDeleteConfirmation }
         private PendingAction _pending = PendingAction.None;
         private int _pendingTaskId;
 
+        // Accepts a plain hyphen, colon, en-dash (–), or em-dash (—) as the
+        // separator — copy/pasting from word processors or chat apps often
+        // auto-converts a typed "-" into one of these look-alike characters.
         private static readonly Regex AddTaskPattern =
-            new(@"^add task\s*[-:]\s*(.+)$", RegexOptions.IgnoreCase);
+            new(@"^add task\s*[-:–—]\s*(.+)$", RegexOptions.IgnoreCase);
 
         private static readonly Regex DeleteTaskPattern =
             new(@"^delete task\s*(\d+)$", RegexOptions.IgnoreCase);
@@ -45,6 +48,12 @@ namespace CyberSecurityBot
             if (_pending == PendingAction.AwaitingReminder)
             {
                 response = HandleReminderReply(input);
+                return true;
+            }
+
+            if (_pending == PendingAction.AwaitingReminderDays)
+            {
+                response = HandleReminderDaysReply(input);
                 return true;
             }
 
@@ -136,7 +145,6 @@ namespace CyberSecurityBot
         // ── Reminder follow-up ───────────────────────────────────────────────
         private string HandleReminderReply(string input)
         {
-            _pending = PendingAction.None;
             int taskId = _pendingTaskId;
 
             bool isYes = Regex.IsMatch(input, @"^(yes|yep|yeah|sure|ok(ay)?)\b", RegexOptions.IgnoreCase);
@@ -147,6 +155,7 @@ namespace CyberSecurityBot
 
             if (daysMatch.Success)
             {
+                _pending = PendingAction.None;
                 int days = int.Parse(daysMatch.Groups[1].Value);
                 DateTime reminderDate = DateTime.Now.AddDays(days);
 
@@ -162,14 +171,58 @@ namespace CyberSecurityBot
             }
 
             if (isNo)
+            {
+                _pending = PendingAction.None;
                 return "No problem — no reminder set for this task.";
+            }
 
             if (isYes)
+            {
+                // Stay in a pending state so the next message (the number of
+                // days) is still captured, instead of being treated as a new
+                // top-level command.
+                _pending = PendingAction.AwaitingReminderDays;
                 return "Sure — how many days from now should I remind you?";
+            }
 
             // Unclear reply — treat the task as saved without a reminder rather
             // than getting stuck waiting forever.
+            _pending = PendingAction.None;
             return "I didn't catch a number of days, so I haven't set a reminder. " +
+                   "You can always add one later by asking me again.";
+        }
+
+        /// <summary>
+        /// Handles the follow-up after a plain "yes" — the person is now
+        /// expected to reply with just a number of days (e.g. "3" or "3 days").
+        /// </summary>
+        private string HandleReminderDaysReply(string input)
+        {
+            _pending = PendingAction.None;
+            int taskId = _pendingTaskId;
+
+            // Accept "3 days", "in 3 days", or a bare number like "3".
+            var daysMatch = ReminderDaysPattern.Match(input);
+            int? days = daysMatch.Success
+                ? int.Parse(daysMatch.Groups[1].Value)
+                : (int.TryParse(input.Trim(), out int bareNumber) ? bareNumber : (int?)null);
+
+            if (days.HasValue && days.Value > 0)
+            {
+                DateTime reminderDate = DateTime.Now.AddDays(days.Value);
+
+                try
+                {
+                    _repo.SetReminder(taskId, reminderDate);
+                    return $"Got it! I'll remind you in {days.Value} day{(days.Value == 1 ? "" : "s")}.";
+                }
+                catch (Exception ex)
+                {
+                    return $"The task was saved, but I couldn't set the reminder due to a database error: {ex.Message}";
+                }
+            }
+
+            return "I still didn't catch a number of days, so I haven't set a reminder. " +
                    "You can always add one later by asking me again.";
         }
 

@@ -14,7 +14,6 @@ namespace CyberSecurityBot
         private TextBox inputBox = null!;
         private Button sendButton = null!;
         private Panel inputPanel = null!;
-        private Panel statusBar = null!;
         private Button quizButton = null!;
 
         // Bot logic
@@ -73,9 +72,8 @@ namespace CyberSecurityBot
 
             quizButton = new Button
             {
-                Text      = "Quiz",
+                Text      = "🧠 Quiz",
                 Size      = new Size(110, 38),
-
                 BackColor = AccentCyan,
                 ForeColor = BgDark,
                 Font      = new Font("Segoe UI", 9.5f, FontStyle.Bold),
@@ -100,7 +98,7 @@ namespace CyberSecurityBot
             headerPanel.Controls.Add(asciiHeader);
             headerPanel.Controls.Add(quizButtonHolder);
 
-
+        
             // ── Input panel ───────────────────────────────────────────────────
             inputPanel = new Panel
             {
@@ -167,7 +165,6 @@ namespace CyberSecurityBot
             // Assemble
             Controls.Add(chatDisplay);
             Controls.Add(inputPanel);
-            Controls.Add(statusBar);
             Controls.Add(headerPanel);
 
             ResumeLayout(false);
@@ -294,6 +291,14 @@ namespace CyberSecurityBot
                 AppendMessage("BOT", "Stay safe online! Goodbye.", AccentCyan, BotBubble);
                 sendButton.Enabled = false;
                 inputBox.Enabled   = false;
+                return;
+            }
+
+            // ── Task management commands take priority (they carry their own
+            //    multi-turn state for reminders / delete confirmation) ────────
+            if (_taskHandler.TryHandle(text, out string taskResponse))
+            {
+                AppendMessage("BOT", taskResponse, AccentCyan, BotBubble);
                 return;
             }
 
