@@ -72,7 +72,7 @@ namespace CyberSecurityBot
 
             quizButton = new Button
             {
-                Text      = "🧠 Quiz",
+                Text      = "Quiz",
                 Size      = new Size(110, 38),
                 BackColor = AccentCyan,
                 ForeColor = BgDark,

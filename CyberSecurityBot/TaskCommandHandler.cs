@@ -10,6 +10,9 @@ namespace CyberSecurityBot
     ///   "Add task - <title>"        → creates a task, then asks about a reminder
     ///   "view tasks"                → lists all tasks
     ///   "delete task <id>"          → asks for confirmation, then deletes
+    /// Recognizes natural variations of each command (different verbs,
+    /// optional filler words, missing separators) rather than requiring an
+    /// exact phrase.
     /// Holds the small bit of conversation state needed for the multi-turn
     /// "add task" flow (waiting on a reminder answer) and the delete
     /// confirmation step.
@@ -23,14 +26,37 @@ namespace CyberSecurityBot
         private PendingAction _pending = PendingAction.None;
         private int _pendingTaskId;
 
-        // Accepts a plain hyphen, colon, en-dash (–), or em-dash (—) as the
-        // separator — copy/pasting from word processors or chat apps often
-        // auto-converts a typed "-" into one of these look-alike characters.
-        private static readonly Regex AddTaskPattern =
-            new(@"^add task\s*[-:–—]\s*(.+)$", RegexOptions.IgnoreCase);
+        // ── Add task ─────────────────────────────────────────────────────────
+        // Matches a leading verb (add/create/make/new/...) plus the word
+        // "task", optionally followed by filler ("a", "for", "to", "called",
+        // "named") and a separator (-, :, –, —), before the actual title.
+        // Examples that all match:
+        //   "Add task - Review privacy settings"
+        //   "Create a task to review my password"
+        //   "New task: clean my inbox"
+        //   "please add task for backing up files"
+        //   "make a task called review settings"
+        private static readonly Regex AddTaskPattern = new(
+            @"^(?:please\s+)?(?:add|create|make|new|set up|setup)\s+(?:a\s+|an\s+)?task" +
+            @"\s*(?:called|named|for|to|titled)?\s*[-:–—]?\s*(.+)$",
+            RegexOptions.IgnoreCase);
 
-        private static readonly Regex DeleteTaskPattern =
-            new(@"^delete task\s*(\d+)$", RegexOptions.IgnoreCase);
+        // ── View tasks ───────────────────────────────────────────────────────
+        // Matches view/show/list/see/check/get + (my/the/all) + task(s),
+        // or short forms like "tasks", "my tasks", "what are my tasks".
+        private static readonly Regex ViewTasksPattern = new(
+            @"^(?:(?:can\s+you\s+)?(?:show|view|list|see|check|get|display)\s+(?:me\s+)?(?:my\s+|the\s+|all\s+)?tasks?" +
+            @"|what(?:'s| is| are)\s+(?:my\s+|on\s+my\s+)?tasks?(?:\s+list)?" +
+            @"|my\s+tasks?" +
+            @"|tasks?\s+list)\s*\??$",
+            RegexOptions.IgnoreCase);
+
+        // ── Delete task ──────────────────────────────────────────────────────
+        // Matches delete/remove/cancel/clear + optional "task"/"#" + a number,
+        // in either order ("delete task 3" or "delete 3").
+        private static readonly Regex DeleteTaskPattern = new(
+            @"^(?:please\s+)?(?:delete|remove|cancel|clear|get rid of)\s+(?:task\s*)?#?\s*(\d+)$",
+            RegexOptions.IgnoreCase);
 
         private static readonly Regex ReminderDaysPattern =
             new(@"(\d+)\s*day", RegexOptions.IgnoreCase);
@@ -63,27 +89,26 @@ namespace CyberSecurityBot
                 return true;
             }
 
-            // ── New command? ────────────────────────────────────────────────
-            var addMatch = AddTaskPattern.Match(input);
-            if (addMatch.Success)
-            {
-                response = HandleAddTask(addMatch.Groups[1].Value.Trim());
-                return true;
-            }
-
-            if (input.Equals("view tasks", StringComparison.OrdinalIgnoreCase) ||
-                input.Equals("view task", StringComparison.OrdinalIgnoreCase) ||
-                input.Equals("my tasks", StringComparison.OrdinalIgnoreCase))
-            {
-                response = HandleViewTasks();
-                return true;
-            }
-
+            // ── New command? Check delete/view first since they're narrower
+            //    and less likely to accidentally swallow an add-task title ───
             var deleteMatch = DeleteTaskPattern.Match(input);
             if (deleteMatch.Success)
             {
                 int id = int.Parse(deleteMatch.Groups[1].Value);
                 response = HandleDeleteRequest(id);
+                return true;
+            }
+
+            if (ViewTasksPattern.IsMatch(input))
+            {
+                response = HandleViewTasks();
+                return true;
+            }
+
+            var addMatch = AddTaskPattern.Match(input);
+            if (addMatch.Success)
+            {
+                response = HandleAddTask(addMatch.Groups[1].Value.Trim());
                 return true;
             }
 
