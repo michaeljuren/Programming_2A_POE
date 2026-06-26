@@ -82,7 +82,46 @@ README.md
 
 - Windows 10/11
 - .NET SDK compatible with the project target (the app targets Windows .NET)
+- MySQL Server running locally
 - Git for cloning the repository
+
+### MySQL configuration
+
+The app connects to MySQL using the connection string in AppSettings.json. The current configuration expects:
+
+- Server: localhost
+- Port: 3306
+- Database: task-manager
+- Username: root
+- Password: your MySQL password (set in AppSettings.json)
+- Table: task
+
+Example configuration:
+
+```json
+{
+  "ConnectionStrings": {
+    "TaskManager": "Server=localhost;Port=3306;Database=task-manager;Uid=root;Pwd=YOUR_MYSQL_PASSWORD;"
+  }
+}
+```
+
+You will also need a MySQL database and table like the following:
+
+```sql
+CREATE DATABASE IF NOT EXISTS `task-manager`;
+
+USE `task-manager`;
+
+CREATE TABLE IF NOT EXISTS `task` (
+  `ID` INT AUTO_INCREMENT PRIMARY KEY,
+  `TITLE` VARCHAR(255) NOT NULL,
+  `DESCRIPTION` TEXT NULL,
+  `REMINDER` DATETIME NULL,
+  `CREATED_AT` DATETIME NOT NULL,
+  `COMPLETED` BOOLEAN NOT NULL DEFAULT FALSE
+);
+```
 
 ### Installation
 
