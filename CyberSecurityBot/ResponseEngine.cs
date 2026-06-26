@@ -72,7 +72,7 @@ namespace CyberSecurityBot
             ["what's your purpose?"] = "I promote cybersecurity awareness and safe online practices.",
             ["what is your purpose"] = "I promote cybersecurity awareness and safe online practices.",
             ["what can i ask about?"]= "You can ask about passwords, phishing, malware, ransomware, and more. You can also manage tasks (\"Add task - <title>\", \"view tasks\", \"delete task <id>\"), or click Quiz to test your knowledge!",
-            ["help"]                 = "Topics I can help with:\n  • passwords\n  • phishing\n  • malware\n  • ransomware\n\nTask management:\n  • Add task - <title>\n  • view tasks\n  • delete task <id>\n\nYou can also click the Quiz button to test your knowledge.",
+            ["help"]                 = "Topics I can help with:\n  • passwords\n  • phishing\n  • malware\n  • ransomware\n\nTask management:\n  • Add task - <title>\n  • view tasks\n  • delete task <id>\n\nOther commands:\n  • show log — see the bot's recent actions\n\nYou can also click the Quiz button to test your knowledge.",
         };
 
         // ── Keyword responses ─────────────────────────────────────────────────
@@ -111,7 +111,10 @@ namespace CyberSecurityBot
             foreach (var (keyword, response) in _keywords)
             {
                 if (input.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                {
+                    ActivityLog.Log($"Answered topic \"{keyword}\"");
                     return ApplySentiment(sentiment, response);
+                }
             }
 
             return sentiment switch

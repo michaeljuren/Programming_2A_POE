@@ -105,6 +105,8 @@ namespace CyberSecurityBot
                 _pending = PendingAction.AwaitingReminder;
                 _pendingTaskId = newId;
 
+                ActivityLog.Log($"Added task #{newId} — \"{title}\"");
+
                 return $"Task added with the description \"{description}\" Would you like a reminder?";
             }
             catch (Exception ex)
@@ -162,6 +164,7 @@ namespace CyberSecurityBot
                 try
                 {
                     _repo.SetReminder(taskId, reminderDate);
+                    ActivityLog.Log($"Set a {days}-day reminder on task #{taskId}");
                     return $"Got it! I'll remind you in {days} day{(days == 1 ? "" : "s")}.";
                 }
                 catch (Exception ex)
@@ -214,6 +217,7 @@ namespace CyberSecurityBot
                 try
                 {
                     _repo.SetReminder(taskId, reminderDate);
+                    ActivityLog.Log($"Set a {days.Value}-day reminder on task #{taskId}");
                     return $"Got it! I'll remind you in {days.Value} day{(days.Value == 1 ? "" : "s")}.";
                 }
                 catch (Exception ex)
@@ -241,7 +245,12 @@ namespace CyberSecurityBot
             }
 
             if (tasks.Count == 0)
+            {
+                ActivityLog.Log("Viewed task list (empty)");
                 return "You don't have any tasks yet. Try \"Add task - <title>\" to create one.";
+            }
+
+            ActivityLog.Log($"Viewed task list ({tasks.Count} task{(tasks.Count == 1 ? "" : "s")})");
 
             var sb = new StringBuilder();
             sb.AppendLine($"You have {tasks.Count} task{(tasks.Count == 1 ? "" : "s")}:");
@@ -296,6 +305,10 @@ namespace CyberSecurityBot
             try
             {
                 bool deleted = _repo.DeleteTask(taskId);
+
+                if (deleted)
+                    ActivityLog.Log($"Deleted task #{taskId}");
+
                 return deleted
                     ? $"Task #{taskId} has been deleted."
                     : $"Task #{taskId} no longer exists — it may have already been deleted.";

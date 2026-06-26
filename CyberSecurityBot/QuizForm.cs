@@ -49,8 +49,8 @@ namespace CyberSecurityBot
         private void Build()
         {
             Text            = "CyberBot Quiz — Test Your Knowledge";
-            Size            = new Size(760, 640);
-            MinimumSize     = new Size(640, 520);
+            Size            = new Size(600, 560);
+            MinimumSize     = new Size(500, 480);
             StartPosition   = FormStartPosition.CenterParent;
             BackColor       = BgDark;
             ForeColor       = TextPrimary;
@@ -107,14 +107,13 @@ namespace CyberSecurityBot
 
             questionLabel = new Label
             {
-                Text        = "",
-                Font        = new Font("Segoe UI", 12.5f, FontStyle.Bold),
-                ForeColor   = TextPrimary,
-                AutoSize    = true,
-                Dock        = DockStyle.Top,
-                TextAlign   = ContentAlignment.TopLeft,
-                MaximumSize = new Size(720, 0),
-                Margin      = new Padding(0, 0, 0, 12),
+                Text      = "",
+                Font      = new Font("Segoe UI", 12.5f, FontStyle.Bold),
+                ForeColor = TextPrimary,
+                AutoSize  = false,
+                Dock      = DockStyle.Top,
+                Height    = 80,
+                TextAlign = ContentAlignment.TopLeft,
             };
 
             optionsPanel = new FlowLayoutPanel
@@ -124,6 +123,7 @@ namespace CyberSecurityBot
                 WrapContents  = false,
                 AutoSize      = true,
                 Height        = 220,
+                Width         = 540,
             };
 
             // ── Feedback area ────────────────────────────────────────────────
@@ -221,7 +221,7 @@ namespace CyberSecurityBot
                 var btn = new Button
                 {
                     Text                = $"{(char)('A' + i)}.  {q.Options[i]}",
-                    Width               = (optionsPanel.ClientSize.Width > 0) ? optionsPanel.ClientSize.Width - 6 : 520,
+                    Width               = 520,
                     Height              = 42,
                     Margin              = new Padding(0, 0, 0, 8),
                     BackColor           = BgPanel,
@@ -298,6 +298,8 @@ namespace CyberSecurityBot
 
             double percentage = (_correctCount / (double)_questions.Count) * 100;
             bool passed = percentage > 50;
+
+            ActivityLog.Log($"Completed quiz — scored {_correctCount}/{_questions.Count} ({percentage:0}%)");
 
             var resultPanel = new Panel
             {

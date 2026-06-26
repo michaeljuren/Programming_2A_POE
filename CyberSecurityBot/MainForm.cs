@@ -98,7 +98,7 @@ namespace CyberSecurityBot
             headerPanel.Controls.Add(asciiHeader);
             headerPanel.Controls.Add(quizButtonHolder);
 
-        
+
             // ── Input panel ───────────────────────────────────────────────────
             inputPanel = new Panel
             {
@@ -291,6 +291,15 @@ namespace CyberSecurityBot
                 AppendMessage("BOT", "Stay safe online! Goodbye.", AccentCyan, BotBubble);
                 sendButton.Enabled = false;
                 inputBox.Enabled   = false;
+                return;
+            }
+
+            // ── Activity log lookup — purely a query, not a loggable action ────
+            if (text.Equals("show log", StringComparison.OrdinalIgnoreCase) ||
+                text.Equals("activity log", StringComparison.OrdinalIgnoreCase) ||
+                text.Equals("view log", StringComparison.OrdinalIgnoreCase))
+            {
+                AppendMessage("BOT", ActivityLog.GetFormatted(), AccentCyan, BotBubble);
                 return;
             }
 
