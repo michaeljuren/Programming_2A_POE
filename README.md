@@ -1,61 +1,73 @@
 # Cybersecurity Awareness Bot
 
-A beginner-friendly **C# Windows Forms chatbot** that promotes cybersecurity awareness and demonstrates a clean, modular codebase, simple audio playback, and a GitHub Actions CI pipeline.
+A beginner-friendly C# Windows Forms application that teaches cybersecurity awareness through a conversational chatbot, a knowledge quiz, and simple task-management features.
 
 ---
 
-##  Overview
+## Overview
 
+The Cybersecurity Awareness Bot runs as a Windows desktop app and combines a polished chat interface with practical cybersecurity guidance. It welcomes the user, answers common security questions, offers a short quiz, and can help manage small reminder-based tasks.
 
-The **Cybersecurity Awareness Bot** runs as a Windows desktop application (WinForms). It presents a themed chat UI, plays a welcome audio clip, and answers common cybersecurity questions using a lightweight rule-based response engine.
+### Recent improvements
 
-Highlights:
-
-- Modern WinForms UI with custom theming and message bubbles
-- Modular design: UI (`MainForm`), response logic (`ResponseEngine`), helpers (`UIHelper`, `AudioPlayer`)
-- Welcome audio playback (included `welcome.wav`)
-- Sentiment-aware, topic-based responses
-- CI pipeline with GitHub Actions
+- A more polished WinForms interface with themed chat bubbles and an ASCII header
+- Inline name prompt on first launch
+- Interactive cybersecurity quiz with scoring and explanations
+- Task-management commands such as adding, viewing, and deleting tasks
+- Reminder flow for tasks with follow-up questions
+- Activity log view for recent bot actions
+- Welcome audio playback on startup
 
 ---
 
 ## Features
 
-- Themed Windows Forms chat UI with an ASCII header
-- Inline name prompt and message bubbles for user & bot
-- Plays `welcome.wav` on startup (non-blocking)
-- Rule-based `ResponseEngine` (topics: passwords, phishing, malware, ransomware, etc.)
-- Simple sentiment-aware prefixes/suffixes to make replies friendlier
-- Clean separation of concerns across small source files
-- CI with GitHub Actions ensuring build and formatting checks
+- Themed Windows Forms chat UI with a custom header and message bubbles
+- Inline name prompt for a more conversational experience
+- Rule-based response engine for topics such as passwords, phishing, malware, ransomware, and safe browsing
+- Quiz mode with multiple-choice and true/false questions
+- Task commands including add, view, and delete actions
+- Reminder prompts for tasks and a simple activity log
+- Welcome sound playback with graceful fallback if the audio file is missing
 
 ---
 
-## Supported Questions
+## Supported interactions
 
-You can ask conversational prompts or simple topics such as:
+You can ask the bot questions such as:
 
 - "How are you?"
-- "What's your purpose?"
+- "What is your purpose?"
 - "What can I ask about?"
+- "Help"
+- "Show log"
 
-Topic keywords supported: `password`, `phishing`, `malware`, `ransomware`, and `help` (shows the list).
+You can also try task commands such as:
 
-If the bot cannot match a topic it returns a friendly fallback and suggestions.
+- "Add task - Review password settings"
+- "View tasks"
+- "Delete task 2"
 
 ---
 
-## Project Structure
+## Project structure
 
-```
+```text
 POE-Part-1.sln
 .github/workflows/manual.yml
 CyberSecurityBot/
-    ├─ Program.cs
-    ├─ MainForm.cs
-    ├─ ResponseEngine.cs
-    ├─ UIHelper.cs
+    ├─ ActivityLog.cs
+    ├─ AppSettings.json
     ├─ AudioPlayer.cs
+    ├─ MainForm.cs
+    ├─ Program.cs
+    ├─ QuizBank.cs
+    ├─ QuizForm.cs
+    ├─ ResponseEngine.cs
+    ├─ TaskCommandHandler.cs
+    ├─ TaskItem.cs
+    ├─ TaskRepository.cs
+    ├─ UIHelper.cs
     ├─ CyberSecurityBot.csproj
     └─ welcome.wav
 .editorconfig
@@ -64,90 +76,46 @@ README.md
 
 ---
 
-##  Getting Started 
+## Getting started
 
-### 📋 Prerequisites
+### Prerequisites
 
-- Windows 11/10 with .NET SDK 10.0+ installed (project targets `net10.0-windows`)
-- Git (for cloning the repository)
-
----
+- Windows 10/11
+- .NET SDK compatible with the project target (the app targets Windows .NET)
+- Git for cloning the repository
 
 ### Installation
 
 ```bash
 git clone <repo-url>
-cd POE-ST10465421
+cd Programming_2A_POE
 dotnet restore
 ```
 
----
-
-### Run the Application
-
-From the repository root run:
+### Run the application
 
 ```bash
 dotnet run --project CyberSecurityBot
 ```
 
-Or launch the built executable (Windows):
-
-```powershell
-& .\CyberSecurityBot\bin\Debug\net10.0-windows\CyberSecurityBot.exe
-```
+You can also run the compiled executable from the build output folder on Windows.
 
 ---
 
 ## Audio
 
-`welcome.wav` is included in the project and copied to output at build time. If it's missing, the app will still run but without the welcome sound.
+The file welcome.wav is included in the project and is played at startup when available. If it is missing, the application still runs normally.
 
 ---
 
-## UI Preview
+## CI/CD
 
-The app shows an ASCII header, a chat pane with colored message bubbles, and an input area at the bottom. On first run it asks for your name inline, then accepts topic queries like `phishing` or `password`.
-
----
-
-## CI/CD with GitHub Actions
-
-The repository includes a GitHub Actions workflow at `.github/workflows/manual.yml` that:
-
-- Restores dependencies
-- Runs `dotnet format --verify-no-changes` (format check)
-- Builds the project on .NET 10
+The repository includes a GitHub Actions workflow at .github/workflows/manual.yml that restores dependencies, checks formatting, and builds the project.
 
 ---
 
-## Code Quality
-
-- `.editorconfig` enforces basic formatting rules
-- CI checks formatting and build correctness
-- Small, single-responsibility source files for maintainability
-
----
-
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
-
----
-
-## 👨‍💻 Author
-
-Developed as part of a coursework project demonstrating a small desktop application with CI.
-
----
-
-## ⭐ Acknowledgements
-
-- .NET SDK & WinForms
-- GitHub Actions
-- Teaching materials and open-source libraries
-
----
 
 
