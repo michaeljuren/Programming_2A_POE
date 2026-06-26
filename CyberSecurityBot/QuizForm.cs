@@ -49,8 +49,8 @@ namespace CyberSecurityBot
         private void Build()
         {
             Text            = "CyberBot Quiz — Test Your Knowledge";
-            Size            = new Size(600, 560);
-            MinimumSize     = new Size(500, 480);
+            Size            = new Size(760, 760);
+            MinimumSize     = new Size(680, 620);
             StartPosition   = FormStartPosition.CenterParent;
             BackColor       = BgDark;
             ForeColor       = TextPrimary;
@@ -101,19 +101,21 @@ namespace CyberSecurityBot
             // ── Question + options ───────────────────────────────────────────
             var bodyPanel = new Panel
             {
-                Dock    = DockStyle.Fill,
-                Padding = new Padding(24, 18, 24, 18),
+                Dock       = DockStyle.Fill,
+                Padding    = new Padding(24, 18, 24, 18),
+                AutoScroll = false,
             };
 
             questionLabel = new Label
             {
-                Text      = "",
-                Font      = new Font("Segoe UI", 12.5f, FontStyle.Bold),
-                ForeColor = TextPrimary,
-                AutoSize  = false,
-                Dock      = DockStyle.Top,
-                Height    = 80,
-                TextAlign = ContentAlignment.TopLeft,
+                Text        = "",
+                Font        = new Font("Segoe UI", 12.5f, FontStyle.Bold),
+                ForeColor   = TextPrimary,
+                AutoSize    = true,
+                Dock        = DockStyle.Top,
+                Margin      = new Padding(0, 0, 0, 12),
+                TextAlign   = ContentAlignment.TopLeft,
+                MaximumSize = new Size(500, 0),
             };
 
             optionsPanel = new FlowLayoutPanel
@@ -122,15 +124,14 @@ namespace CyberSecurityBot
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents  = false,
                 AutoSize      = true,
-                Height        = 220,
-                Width         = 540,
+                Width         = 680,
             };
 
             // ── Feedback area ────────────────────────────────────────────────
             feedbackPanel = new Panel
             {
                 Dock      = DockStyle.Top,
-                Height    = 110,
+                Height    = 170,
                 BackColor = BgPanel,
                 Visible   = false,
                 Margin    = new Padding(0, 10, 0, 0),
@@ -221,7 +222,7 @@ namespace CyberSecurityBot
                 var btn = new Button
                 {
                     Text                = $"{(char)('A' + i)}.  {q.Options[i]}",
-                    Width               = 520,
+                    Width               = 640,
                     Height              = 42,
                     Margin              = new Padding(0, 0, 0, 8),
                     BackColor           = BgPanel,
@@ -231,6 +232,7 @@ namespace CyberSecurityBot
                     Padding             = new Padding(12, 0, 0, 0),
                     Cursor              = Cursors.Hand,
                     Font                = new Font("Segoe UI", 10.5f),
+                    AutoSize            = false,
                 };
                 btn.FlatAppearance.BorderColor = Color.FromArgb(55, 65, 80);
                 btn.FlatAppearance.BorderSize  = 1;
@@ -303,16 +305,21 @@ namespace CyberSecurityBot
 
             var resultPanel = new Panel
             {
-                Dock    = DockStyle.Fill,
-                Padding = new Padding(30),
+                Dock       = DockStyle.Fill,
+                Padding    = new Padding(30),
+                BackColor  = BgDark,
+                AutoScroll = false,
             };
+
+            int contentWidth = Math.Min(540, Math.Max(280, Width - 120));
 
             var icon = new Label
             {
                 Text      = passed ? "🏆" : "📘",
                 Font      = new Font("Segoe UI", 36f),
                 AutoSize  = true,
-                Location  = new Point(220, 30),
+                Anchor    = AnchorStyles.Top,
+                TextAlign = ContentAlignment.MiddleCenter,
             };
 
             var scoreLabel = new Label
@@ -320,21 +327,22 @@ namespace CyberSecurityBot
                 Text      = $"You scored {_correctCount} / {_questions.Count}",
                 Font      = new Font("Segoe UI", 16f, FontStyle.Bold),
                 ForeColor = AccentCyan,
-                AutoSize  = true,
+                AutoSize  = false,
+                Width     = contentWidth,
+                Height    = 32,
+                Anchor    = AnchorStyles.Top,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Location  = new Point(0, 110),
-                Width     = 540,
             };
-            scoreLabel.Left = (resultPanel.Width - scoreLabel.PreferredWidth) / 2;
 
             var percentLabel = new Label
             {
                 Text      = $"({percentage:0}% correct)",
                 Font      = new Font("Segoe UI", 10.5f),
                 ForeColor = TextMuted,
-                AutoSize  = true,
-                Location  = new Point(0, 150),
-                Width     = 540,
+                AutoSize  = false,
+                Width     = contentWidth,
+                Height    = 24,
+                Anchor    = AnchorStyles.Top,
                 TextAlign = ContentAlignment.MiddleCenter,
             };
 
@@ -346,9 +354,9 @@ namespace CyberSecurityBot
                 Font      = new Font("Segoe UI", 13f, FontStyle.Bold),
                 ForeColor = passed ? AccentGreen : Color.FromArgb(255, 190, 90),
                 AutoSize  = false,
-                Width     = 540,
+                Width     = contentWidth,
                 Height    = 40,
-                Location  = new Point(0, 190),
+                Anchor    = AnchorStyles.Top,
                 TextAlign = ContentAlignment.MiddleCenter,
             };
 
@@ -357,18 +365,22 @@ namespace CyberSecurityBot
                 Text      = "Close",
                 Width     = 200,
                 Height    = 42,
-                Location  = new Point(170, 260),
                 BackColor = AccentCyan,
                 ForeColor = BgDark,
                 Font      = new Font("Segoe UI", 10f, FontStyle.Bold),
                 FlatStyle = FlatStyle.Flat,
                 Cursor    = Cursors.Hand,
+                Anchor    = AnchorStyles.Top
             };
             closeButton.FlatAppearance.BorderSize = 0;
             closeButton.Click += (_, _) => { DialogResult = DialogResult.OK; Close(); };
 
-            // Centre icon roughly
-            icon.Left = (540 - icon.PreferredWidth) / 2;
+            int topOffset = 30;
+            icon.Location = new Point((resultPanel.Width - icon.Width) / 2, topOffset);
+            scoreLabel.Location = new Point((resultPanel.Width - scoreLabel.Width) / 2, topOffset + 90);
+            percentLabel.Location = new Point((resultPanel.Width - percentLabel.Width) / 2, topOffset + 128);
+            messageLabel.Location = new Point((resultPanel.Width - messageLabel.Width) / 2, topOffset + 170);
+            closeButton.Location = new Point((resultPanel.Width - closeButton.Width) / 2, topOffset + 235);
 
             resultPanel.Controls.Add(icon);
             resultPanel.Controls.Add(scoreLabel);
