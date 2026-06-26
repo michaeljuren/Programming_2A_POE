@@ -13,26 +13,21 @@ namespace CyberSecurityBot
 
         private enum Sentiment { Neutral, Worried, Curious, Frustrated }
 
-        // Each entry is (keyword, sentiment). First match wins.
         private static readonly List<(string keyword, Sentiment sentiment)> _sentimentKeywords = new()
         {
-            // Worried
             ("worried",     Sentiment.Worried),
             ("scared",      Sentiment.Worried),
             ("afraid",      Sentiment.Worried),
 
-            // Curious
             ("curious",     Sentiment.Curious),
             ("wondering",   Sentiment.Curious),
             ("why",         Sentiment.Curious),
 
-            // Frustrated
             ("frustrated",  Sentiment.Frustrated),
             ("annoyed",     Sentiment.Frustrated),
             ("don't understand", Sentiment.Frustrated),
         };
 
-        // Prefixes prepended to the core response based on detected sentiment.
         private static readonly Dictionary<Sentiment, string> _sentimentPrefixes = new()
         {
             [Sentiment.Worried]    = "I understand this can feel concerning — you're not alone in worrying about this. ",
@@ -40,7 +35,6 @@ namespace CyberSecurityBot
             [Sentiment.Frustrated] = "I hear you — this stuff can be genuinely frustrating. Let me try to make it clearer: ",
         };
 
-        // Suffixes appended to the core response based on detected sentiment.
         private static readonly Dictionary<Sentiment, string> _sentimentSuffixes = new()
         {
             [Sentiment.Worried]    = " Take a breath — being aware of the risk is already the first step to staying safe.",
@@ -77,8 +71,8 @@ namespace CyberSecurityBot
             ["how are you"]          = "I'm just code, but I'm running perfectly!",
             ["what's your purpose?"] = "I promote cybersecurity awareness and safe online practices.",
             ["what is your purpose"] = "I promote cybersecurity awareness and safe online practices.",
-            ["what can i ask about?"]= "You can ask about passwords, phishing, malware, safe browsing, two-factor authentication, VPNs, and social engineering. Try typing any of those topics!",
-            ["help"]                 = "Topics I can help with:\n  • passwords\n  • phishing\n  • malware\n  • ransomware\n\nJust type a topic or ask a full question!",
+            ["what can i ask about?"]= "You can ask about passwords, phishing, malware, ransomware, and more. You can also manage tasks (\"Add task - <title>\", \"view tasks\", \"delete task <id>\"), or click Quiz to test your knowledge!",
+            ["help"]                 = "Topics I can help with:\n  • passwords\n  • phishing\n  • malware\n  • ransomware\n\nTask management:\n  • Add task - <title>\n  • view tasks\n  • delete task <id>\n\nYou can also click the Quiz button to test your knowledge.",
         };
 
         // ── Keyword responses ─────────────────────────────────────────────────
@@ -111,23 +105,20 @@ namespace CyberSecurityBot
         {
             Sentiment sentiment = DetectSentiment(input);
 
-            // Exact matches bypass sentiment wrapping (they are conversational, not informational)
             if (_exact.TryGetValue(input.Trim(), out string? exact))
                 return exact;
 
-            // Keyword scan
             foreach (var (keyword, response) in _keywords)
             {
                 if (input.Contains(keyword, StringComparison.OrdinalIgnoreCase))
                     return ApplySentiment(sentiment, response);
             }
 
-            // Fallback — acknowledge sentiment even when no topic is matched
             return sentiment switch
             {
                 Sentiment.Worried    => "I can tell you're concerned. Could you tell me more about what's worrying you? " +
                                         "I can help with topics like passwords, phishing, malware, and more — type \"help\" for the full list.",
-                Sentiment.Curious    => "I'd love to help! I cover topics like passwords, phishing, malware, VPNs, and more. Type \"help\" to see everything.",
+                Sentiment.Curious    => "I'd love to help! I cover topics like passwords, phishing, malware, ransomware, and more. Type \"help\" to see everything.",
                 Sentiment.Frustrated => "I'm sorry I'm not hitting the mark. Try typing a specific topic like \"phishing\" or \"password\", " +
                                         "or type \"help\" for the full list.",
                 _                   => "I didn't quite understand that. Type \"help\" to see the topics I can assist with, or try rephrasing your question.",
